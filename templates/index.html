@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Panel AWS · EC2 + DynamoDB</title>
-<meta name="csrf-token" content="{{ csrf_token() }}">
 <style>
   :root { --bg:#0b1020; --panel:#141b34; --panel2:#1b2447; --line:#27325e;
           --txt:#e8ecff; --mut:#8f9bc7; --a:#ff9900; --b:#6c5ce7; --c:#00d4aa; --r:#ff5d6c; }
@@ -134,7 +133,7 @@
     <div class="bar">
       <div><h2 id="titulo">Selecciona una tabla</h2><span class="c" id="cuenta"></span></div>
       <div class="tools">
-        <input id="buscar" aria-label="Buscar en la tabla" placeholder="🔎 Buscar en la tabla..." oninput="pintar()">
+        <input id="buscar" placeholder="🔎 Buscar en la tabla..." oninput="pintar()">
         <button class="btn new" onclick="abrirForm(null)">➕ Nuevo</button>
       </div>
     </div>
@@ -145,7 +144,7 @@
 <!-- Modal crear / editar -->
 <div class="ov" id="ovForm">
   <div class="modal">
-    <h3 id="fTitulo">Registro</h3>
+    <h3 id="fTitulo"></h3>
     <p class="s" id="fSub"></p>
     <div id="fCampos"></div>
     <div class="ferr" id="fErr"></div>
@@ -177,7 +176,6 @@
   const cop = n => "$" + Number(n).toLocaleString("es-CO");
   const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const $ = id => document.getElementById(id);
-  const CSRF = document.querySelector('meta[name="csrf-token"]').content;
 
   function toast(texto, ok = true) {
     const t = $("toast");
@@ -285,7 +283,7 @@
       const url = "/api/" + actual + (editando ? "/" + encodeURIComponent(editando[clave]) : "");
       const r = await fetch(url, {
         method: editando ? "PUT" : "POST",
-        headers: {"Content-Type": "application/json", "X-CSRFToken": CSRF},
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify(cuerpo)
       });
       const d = await r.json();
@@ -309,7 +307,7 @@
 
   async function confirmarEliminar() {
     try {
-      const r = await fetch("/api/" + actual + "/" + encodeURIComponent(porBorrar[clave]), {method: "DELETE", headers: {"X-CSRFToken": CSRF}});
+      const r = await fetch("/api/" + actual + "/" + encodeURIComponent(porBorrar[clave]), {method: "DELETE"});
       const d = await r.json();
       if (!r.ok || d.error) throw new Error(d.error || "Error al eliminar");
       cerrar("ovDel");
